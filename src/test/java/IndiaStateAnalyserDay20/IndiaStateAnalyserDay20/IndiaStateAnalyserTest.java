@@ -126,5 +126,11 @@ public class IndiaStateAnalyserTest {
 		int count = StateCensusAnalyser.sortPopulousDensityStates(FILE_PATH);
 		Assert.assertEquals(29, count);
 	}
+	
+	@Test
+	public void thisTestCasePasesWhenReturnedJsonFileContainsMostLargestStatesiInAreainSortedOrder() throws IOException {
+		int count = StateCensusAnalyser.sortStatesbyArea(FILE_PATH);
+		Assert.assertEquals(29, count);
+	}
 
 }
