@@ -19,6 +19,7 @@ public class StateCensusAnalyser<E> {
 	
 	private static final String STATE_CENSUS_FILE = "C:\\Users\\Admin\\workspace\\IndiaStateAnalyserDay20\\src\\main\\resources\\stateCensusJson.json";
 	private static final String STATE_CODES_FILE = "C:\\Users\\Admin\\workspace\\IndiaStateAnalyserDay20\\src\\main\\resources\\stateCodesJson.json";
+	private static final String STATE_CENSUS_MOSTPOULOUS_FILE = "C:\\Users\\Admin\\workspace\\IndiaStateAnalyserDay20\\src\\main\\resources\\stateCensusMostPopulous.json";
 	
 	public static int loadStateCensusCsv(String FILE_PATH) throws StateCensusException { //Loads List for CSV State Census File
 		try {	
@@ -75,29 +76,19 @@ public class StateCensusAnalyser<E> {
 			throw new StateCensusException(StateCensusException.CensusExceptionType.EXTENSION_INVALID, "Extension Miss match");	
 	}
 
-	public static String[] sortStates(String FILE_PATH) throws StateCensusException {//Sorts according to state names
+	public static String[] sortStates(String FILE_PATH) throws IOException {//Sorts according to state names
+		ArrayList<CSVStateCensus> list = new ArrayList<>();
 		try {	
-			fileType(FILE_PATH);
 			FileReader fileReader = new FileReader(FILE_PATH);
 			CSVReader csvReader = new CSVReader(fileReader);
-			ArrayList<CSVStateCensus> list = new ArrayList<>();
 			String[] nextRecord;
 			while((nextRecord = csvReader.readNext()) != null){
-				try {
 					list.add(createList(nextRecord));
-				} catch(RuntimeException e) {
-					throw new StateCensusException(StateCensusException.CensusExceptionType.DELIMITER_EXCEPTION, "Delimiter Issue");
-				}
 			}
-			return createJson(list);
-		} catch(FileNotFoundException e) {
-			throw new StateCensusException(StateCensusException.CensusExceptionType.NO_SUCH_FILE, "File Not Found");
-		} catch(IOException e) {
-			throw new StateCensusException(StateCensusException.CensusExceptionType.IO_EXCEPTION, "IO Exception");
-		} catch(RuntimeException e) {
+		} catch(Exception e) {
 			e.printStackTrace();
-			throw new StateCensusException(StateCensusException.CensusExceptionType.HEADER_INVALID, "Header Miss Match");
 		}
+		return createJson(list);
 	}
 
 	private static String[] createJson(ArrayList<CSVStateCensus> list) throws IOException { //Sorts the states and Creates JSON file
@@ -186,5 +177,35 @@ public class StateCensusAnalyser<E> {
 		indianStateCodes.setStateCode(stateCode);
 		
 		return indianStateCodes;
+	}
+
+	public static int sortPopulousStates(String FILE_PATH) throws IOException {
+		ArrayList<CSVStateCensus> list = new ArrayList<>();
+		try {	
+			FileReader fileReader = new FileReader(FILE_PATH);
+			CSVReader csvReader = new CSVReader(fileReader);
+			String[] nextRecord;
+			while((nextRecord = csvReader.readNext()) != null){
+					list.add(createList(nextRecord));
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return createMostPupulousJson(list);
+	}
+
+	private static int createMostPupulousJson(ArrayList<CSVStateCensus> list) throws IOException {
+		ArrayList<CSVStateCensus> sortedList = (ArrayList<CSVStateCensus>) list.stream()
+												.sorted((poulation1, poulation2) -> poulation2.getPopulation().compareTo(poulation1.getPopulation()))
+												.collect(Collectors.toList());
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		Gson gson = gsonBuilder.setPrettyPrinting().create();
+		String json = gson.toJson(sortedList);
+
+		try (FileWriter file = new FileWriter(STATE_CENSUS_MOSTPOULOUS_FILE)) {      	 
+			file.write(json);
+			file.flush();
+		}
+		return sortedList.size() - 1;
 	}
 }

@@ -102,7 +102,7 @@ public class IndiaStateAnalyserTest {
 	}
 	
 	@Test
-	public void thisTestCasePasesWhenReturnedJsonFileContainsStartAndEndStatesAreMatched() throws StateCensusException {
+	public void thisTestCasePasesWhenReturnedJsonFileContainsStartAndEndStatesAreMatched() throws IOException {
 		String[] startAndEndStates = StateCensusAnalyser.sortStates(FILE_PATH);
 		Assert.assertEquals("Andhra Pradesh", startAndEndStates[0]);
 		Assert.assertEquals("West Bengal", startAndEndStates[1]);
@@ -114,4 +114,11 @@ public class IndiaStateAnalyserTest {
 		Assert.assertEquals("AN", firstAndLastStateCodes[0]);
 		Assert.assertEquals("WB", firstAndLastStateCodes[1]);
 	}
+	
+	@Test
+	public void thisTestCasePasesWhenReturnedJsonFileContainsMostPopulousStatesinSortedOrder() throws IOException {
+		int count = StateCensusAnalyser.sortPopulousStates(FILE_PATH);
+		Assert.assertEquals(29, count);
+	}
+
 }
