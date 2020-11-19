@@ -2,12 +2,19 @@ package IndiaStateAnalyserDay20.IndiaStateAnalyserDay20;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.opencsv.CSVReader;
 
 public class StateCensusAnalyser<E> { 
+private static final String STATU_CENSUS_FILE = "C:\\Users\\Admin\\workspace\\IndiaStateAnalyserDay20\\src\\main\\resources\\stateCensusJson.json";
 	public static int loadStateCensusCsv(String FILE_PATH) throws StateCensusException { //Loads List for CSV State Census File
 		try {	
 			fileType(FILE_PATH);
@@ -17,7 +24,7 @@ public class StateCensusAnalyser<E> {
 			String[] nextRecord;
 			while((nextRecord = csvReader.readNext()) != null){
 				try {
-					list.add(createBook(nextRecord));
+					list.add(createList(nextRecord));
 				} catch(RuntimeException e) {
 					throw new StateCensusException(StateCensusException.CensusExceptionType.DELIMITER_EXCEPTION, "Delimiter Issue");
 				}
@@ -32,7 +39,7 @@ public class StateCensusAnalyser<E> {
 		}
 	}
 	
-	public static int loadStateCodeCsv(String FILE_PATH) throws StateCensusException { //Loads List for CSV State C File
+	public static int loadStateCodeCsv(String FILE_PATH) throws StateCensusException { //Loads List for CSV State Code File
 		
 		try {
 			fileType(FILE_PATH);
@@ -42,7 +49,7 @@ public class StateCensusAnalyser<E> {
 			String[] nextRecord;
 			while((nextRecord = csvReader.readNext()) != null){
 				try {
-					list.add(createBook(nextRecord));
+					list.add(createList(nextRecord));
 				} catch(RuntimeException e) {
 					throw new StateCensusException(StateCensusException.CensusExceptionType.DELIMITER_EXCEPTION, "Delimiter Issue");
 				}
@@ -57,7 +64,7 @@ public class StateCensusAnalyser<E> {
 		}	
 	}
 	
-	private static CSVStateCensus createBook(String[] attributes) { 
+	private static CSVStateCensus createList(String[] attributes) { //Creates List
 		
 		String state = attributes[0];
 		String population = attributes[1];
@@ -78,5 +85,48 @@ public class StateCensusAnalyser<E> {
 		String extension = FilenameUtils.getExtension(FILE_PATH);
 		if(!extension.contains("csv"))
 			throw new StateCensusException(StateCensusException.CensusExceptionType.EXTENSION_INVALID, "Extension Miss match");	
+	}
+
+	public static String[] sortStates(String FILE_PATH) throws StateCensusException {//Sorts according to state names
+		try {	
+			fileType(FILE_PATH);
+			FileReader fileReader = new FileReader(FILE_PATH);
+			CSVReader csvReader = new CSVReader(fileReader);
+			ArrayList<CSVStateCensus> list = new ArrayList<>();
+			String[] nextRecord;
+			while((nextRecord = csvReader.readNext()) != null){
+				try {
+					list.add(createList(nextRecord));
+				} catch(RuntimeException e) {
+					throw new StateCensusException(StateCensusException.CensusExceptionType.DELIMITER_EXCEPTION, "Delimiter Issue");
+				}
+			}
+			return createJson(list);
+		} catch(FileNotFoundException e) {
+			throw new StateCensusException(StateCensusException.CensusExceptionType.NO_SUCH_FILE, "File Not Found");
+		} catch(IOException e) {
+			throw new StateCensusException(StateCensusException.CensusExceptionType.IO_EXCEPTION, "IO Exception");
+		} catch(RuntimeException e) {
+			e.printStackTrace();
+			throw new StateCensusException(StateCensusException.CensusExceptionType.HEADER_INVALID, "Header Miss Match");
+		}
+	}
+
+	private static String[] createJson(ArrayList<CSVStateCensus> list) throws IOException { //Sorts the states and Creates JSON file
+		ArrayList<CSVStateCensus> sortedList = (ArrayList<CSVStateCensus>) list.stream()
+												.sorted(Comparator.comparing(CSVStateCensus::getState))
+												.collect(Collectors.toList());
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		Gson gson = gsonBuilder.setPrettyPrinting().create();
+		String json = gson.toJson(sortedList);
+		
+		try (FileWriter file = new FileWriter(STATU_CENSUS_FILE)) {      	 
+			 file.write(json);
+			 file.flush();
+		}
+		String firstState = sortedList.get(0).getState();
+		String lastState = sortedList.get(29).getState();
+		String[] firstAndLastStates = {firstState, lastState};
+		return firstAndLastStates;
 	}
 }
