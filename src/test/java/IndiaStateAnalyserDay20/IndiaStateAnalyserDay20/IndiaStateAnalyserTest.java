@@ -1,5 +1,7 @@
 package IndiaStateAnalyserDay20.IndiaStateAnalyserDay20;
 
+import java.io.IOException;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -107,38 +109,9 @@ public class IndiaStateAnalyserTest {
 	}
 	
 	@Test
-	public void thisTestCasePasesWhenReturnExceptionIsNoSUchFileJsonFormat() {
-		try{
-			StateCensusAnalyser.sortStates(WRONG_FILE_PATH);
-		} catch(StateCensusException e) {
-			Assert.assertEquals(StateCensusException.CensusExceptionType.NO_SUCH_FILE, e.type);
-		}
-	}
-	
-	@Test
-	public void thisTestCasePasesWhenReturnExceptionWhenExtensionIncorrectJsonFormat() {
-		try{
-			StateCensusAnalyser.sortStates(FILE_PATH_WRONG_EXTENSION);
-		} catch(StateCensusException e) {
-			Assert.assertEquals(StateCensusException.CensusExceptionType.EXTENSION_INVALID, e.type);
-		}
-	}
-	
-	@Test
-	public void thisTestCasePasesWhenReturnExceptionWhenIncorrectDelimiterArisedJsonFormat() {
-		try{
-			StateCensusAnalyser.sortStates(FILE_PATH_DELIMITER);
-		} catch(StateCensusException e) {
-			Assert.assertEquals(StateCensusException.CensusExceptionType.DELIMITER_EXCEPTION, e.type);
-		}
-	}
-	
-	@Test
-	public void thisTestCasePasesWhenReturnExceptionWhenIncorrectHeaderJsonFormat() {
-		try{
-			StateCensusAnalyser.sortStates(FILE_PATH_HEADER);
-		} catch(StateCensusException e) {
-			Assert.assertEquals(StateCensusException.CensusExceptionType.HEADER_INVALID, e.type);
-		}
+	public void thisTestCasePasesWhenReturnValueEqualsTonumberOfStatesStateCodesJsonFormat() throws IOException, StateCensusException {
+		String[] firstAndLastStateCodes = StateCensusAnalyser.sortStateCodes(FILE_PATH_STATECODE);
+		Assert.assertEquals("AN", firstAndLastStateCodes[0]);
+		Assert.assertEquals("WB", firstAndLastStateCodes[1]);
 	}
 }
