@@ -20,6 +20,7 @@ public class StateCensusAnalyser<E> {
 	private static final String STATE_CENSUS_FILE = "C:\\Users\\Admin\\workspace\\IndiaStateAnalyserDay20\\src\\main\\resources\\stateCensusJson.json";
 	private static final String STATE_CODES_FILE = "C:\\Users\\Admin\\workspace\\IndiaStateAnalyserDay20\\src\\main\\resources\\stateCodesJson.json";
 	private static final String STATE_CENSUS_MOSTPOULOUS_FILE = "C:\\Users\\Admin\\workspace\\IndiaStateAnalyserDay20\\src\\main\\resources\\stateCensusMostPopulous.json";
+	private static final String FILE_PATH_DENSITY = "C:\\Users\\Admin\\workspace\\IndiaStateAnalyserDay20\\src\\main\\resources\\stateCensusMostPoulationDensity.json";
 	
 	public static int loadStateCensusCsv(String FILE_PATH) throws StateCensusException { //Loads List for CSV State Census File
 		try {	
@@ -203,6 +204,36 @@ public class StateCensusAnalyser<E> {
 		String json = gson.toJson(sortedList);
 
 		try (FileWriter file = new FileWriter(STATE_CENSUS_MOSTPOULOUS_FILE)) {      	 
+			file.write(json);
+			file.flush();
+		}
+		return sortedList.size() - 1;
+	}
+
+	public static int sortPopulousDensityStates(String FILE_PATH) throws IOException {
+		ArrayList<CSVStateCensus> list = new ArrayList<>();
+		try {	
+			FileReader fileReader = new FileReader(FILE_PATH);
+			CSVReader csvReader = new CSVReader(fileReader);
+			String[] nextRecord;
+			while((nextRecord = csvReader.readNext()) != null){
+					list.add(createList(nextRecord));
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return createMostPupulousDensityJson(list);
+	}
+
+	private static int createMostPupulousDensityJson(ArrayList<CSVStateCensus> list) throws IOException {
+		ArrayList<CSVStateCensus> sortedList = (ArrayList<CSVStateCensus>) list.stream()
+				.sorted((poulation1, poulation2) -> poulation2.getDensityPerSqKm().compareTo(poulation1.getDensityPerSqKm()))
+				.collect(Collectors.toList());
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		Gson gson = gsonBuilder.setPrettyPrinting().create();
+		String json = gson.toJson(sortedList);
+
+		try (FileWriter file = new FileWriter(FILE_PATH_DENSITY)) {      	 
 			file.write(json);
 			file.flush();
 		}

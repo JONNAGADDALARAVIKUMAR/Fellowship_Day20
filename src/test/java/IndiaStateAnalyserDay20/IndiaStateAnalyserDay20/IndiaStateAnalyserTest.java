@@ -16,7 +16,7 @@ public class IndiaStateAnalyserTest {
 	private static final String FILE_PATH_STATECODE_EXTENSION = "C:\\Users\\Admin\\workspace\\IndiaStateAnalyserDay20\\src\\main\\resources\\IndiaStateCode.json";
 	private static final String FILE_PATH_STATECODE_DELIMITER = "C:\\Users\\Admin\\workspace\\IndiaStateAnalyserDay20\\src\\main\\resources\\IndiaStateCodeDelimiter.csv";
 	private static final String FILE_PATH_STATECODE_HEADER = "C:\\Users\\Admin\\workspace\\IndiaStateAnalyserDay20\\src\\main\\resources\\IndiaStateCodeHeader.csv";
-
+	
 	@Test
 	public void thisTestCasePasesWhenReturnValueEqualsTonumberOfStates() throws StateCensusException {
 		int count = StateCensusAnalyser.loadStateCensusCsv(FILE_PATH);
@@ -118,6 +118,12 @@ public class IndiaStateAnalyserTest {
 	@Test
 	public void thisTestCasePasesWhenReturnedJsonFileContainsMostPopulousStatesinSortedOrder() throws IOException {
 		int count = StateCensusAnalyser.sortPopulousStates(FILE_PATH);
+		Assert.assertEquals(29, count);
+	}
+	
+	@Test
+	public void thisTestCasePasesWhenReturnedJsonFileContainsMostPopulousDensityStatesinSortedOrder() throws IOException {
+		int count = StateCensusAnalyser.sortPopulousDensityStates(FILE_PATH);
 		Assert.assertEquals(29, count);
 	}
 
